@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { User, UserManager } from 'oidc-client-ts';
 import { oidcConfig } from '../configs/oidc-config';
-import { RestapiService } from '../restapi.service';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +9,7 @@ import { RestapiService } from '../restapi.service';
 export class AuthService {
   public userManager: UserManager;
 
-  constructor(private restApiService: RestapiService) {
+  constructor(private readonly router: Router) {
     this.userManager = new UserManager({
       ...oidcConfig,
       metadata: {
@@ -27,11 +27,15 @@ export class AuthService {
 
   // Processa o callback após login
   async handleCallback(): Promise<void> {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     try {
       const user = await this.userManager.signinRedirectCallback();
-      console.log(user)
+      console.log(user);
       localStorage.setItem('app-token', user.access_token);
-      window.location.href = '/';
+      this.router.navigate(['/']);
     } catch (error) {
       console.error('Erro ao processar o callback de login:', error);
     }
@@ -53,16 +57,14 @@ export class AuthService {
   };
 
   logout = async () => {
-    // Faz a requisição HTTP para o endpoint de logout
     const logoutUrl = `${oidcConfig.logoutUrl}?post_logout_redirect_uri=${encodeURIComponent(oidcConfig.post_logout_redirect_uri)}`;
 
     try {
       await fetch(logoutUrl, {
-        method: 'POST', // ou 'POST', dependendo da implementação do IAM
-        credentials: 'same-origin' // Usado para garantir que cookies de sessão sejam enviados
+        method: 'POST',
+        credentials: 'same-origin'
       });
-      // Após a requisição de logout ser feita, o redirecionamento ocorre para o post_logout_redirect_uri
-      window.location.href = oidcConfig.post_logout_redirect_uri;
+      this.router.navigateByUrl('login');
     } catch (error) {
       console.error('Erro ao tentar realizar logout', error);
     }
