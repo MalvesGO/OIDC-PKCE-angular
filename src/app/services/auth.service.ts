@@ -33,7 +33,6 @@ export class AuthService {
 
     try {
       const user = await this.userManager.signinRedirectCallback();
-      console.log(user);
       localStorage.setItem('app-token', user.access_token);
       this.router.navigate(['/']);
     } catch (error) {
