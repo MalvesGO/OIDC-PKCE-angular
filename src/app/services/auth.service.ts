@@ -55,18 +55,9 @@ export class AuthService {
     sessionStorage.clear();
   };
 
-  logout = async () => {
-    const logoutUrl = `${oidcConfig.logoutUrl}?post_logout_redirect_uri=${encodeURIComponent(oidcConfig.post_logout_redirect_uri)}`;
-
-    try {
-      await fetch(logoutUrl, {
-        method: 'POST',
-        credentials: 'same-origin'
-      });
-      this.router.navigateByUrl('login');
-    } catch (error) {
-      console.error('Erro ao tentar realizar logout', error);
-    }
+  logout = () => {
+    // Redireciona o usuário para a rota de logout
+    this.router.navigateByUrl('/logout');
   };
 
   logoutAndClearSession = () => {
