@@ -8,7 +8,6 @@ import { RestapiService } from '../restapi.service';
 })
 export class AuthService {
   public userManager: UserManager;
-  private userState: any = null;
 
   constructor(private restApiService: RestapiService) {
     this.userManager = new UserManager({
@@ -19,7 +18,6 @@ export class AuthService {
         token_endpoint: `${oidcConfig.authority}/oauth2/rest/token`,
       },
     });
-    this.userState = JSON.parse(localStorage.getItem('sico_user') ?? 'null');
   }
 
   // Inicia o login
@@ -32,9 +30,7 @@ export class AuthService {
     try {
       const user = await this.userManager.signinRedirectCallback();
       console.log(user)
-      localStorage.setItem('token', user.access_token);
-      const utilizador = await this.restApiService.getRandomPokemon().toPromise();
-      console.log('utilizador', utilizador);
+      localStorage.setItem('app-token', user.access_token);
       window.location.href = '/';
     } catch (error) {
       console.error('Erro ao processar o callback de login:', error);
@@ -51,15 +47,9 @@ export class AuthService {
     }
   }
 
-  // Retorna o usuário salvo do banco
-  getUserState(): any {
-    return this.userState;
-  }
-
   clearSession = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('app-token');
     sessionStorage.clear();
-    this.userState = null;
   };
 
   logout = async () => {

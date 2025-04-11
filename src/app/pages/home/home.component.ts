@@ -8,7 +8,7 @@ import { AuthService } from '../../services/auth.service';
       <h1 class="text-2xl font-bold mb-6">Painel Principal</h1>
 
       <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-xl font-semibold mb-4">Bem-vindo, {{ userName }}</h2>
+        <h2 class="text-xl font-semibold mb-4">Bem-vindo, {{ userName }} - {{ userEmail }}</h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           <div class="bg-blue-50 p-6 rounded-md border border-blue-100">
@@ -41,13 +41,21 @@ import { AuthService } from '../../services/auth.service';
 })
 export class HomeComponent implements OnInit {
   userName = '';
+  userEmail = '';
 
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
-    const userState = this.authService.getUserState();
-    if (userState) {
-      this.userName = userState.nome || 'Usuário';
-    }
+    const user = this.authService.getUser();
+    user.then((userData) => {
+      if (userData && userData.profile) {
+        console.log('userData', userData);
+        this.userName = userData.profile.name ?? 'Usuário';
+        this.userEmail = userData.profile['mail'] ? String(userData.profile['mail']) : 'Email não disponível';
+      } else {
+        this.userName = 'Usuário Desconhecido';
+        this.userEmail = 'Email não disponível';
+      }
+    });
   }
 }

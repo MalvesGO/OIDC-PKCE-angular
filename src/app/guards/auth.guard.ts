@@ -21,17 +21,11 @@ export class AuthGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Promise<boolean> {
-    // Verifica se o usuário está autenticado
-    const userState = this.authService.getUserState();
-
-    if (userState) {
-      return true;
-    }
 
     // Se não estiver autenticado, tenta obter o usuário da sessão
-    const user = await this.authService.getUser();
+    const sessionUser = await this.authService.getUser();
 
-    if (user && !user.expired) {
+    if (sessionUser && !sessionUser.expired) {
       return true;
     }
 
