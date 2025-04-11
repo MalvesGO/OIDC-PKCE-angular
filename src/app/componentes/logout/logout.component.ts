@@ -12,27 +12,13 @@ export class LogoutComponent implements OnInit {
     this.performLogoutAndRedirect();
   }
 
-  private async performLogoutAndRedirect(): Promise<void> {
-    const logoutUrl = 'https://iam-oam-dev.min-saude.pt/oam/server/logout';
+  private performLogoutAndRedirect(): void {
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = 'https://iam-oam-dev.min-saude.pt/oam/server/logout?returnUrl=' + encodeURIComponent(window.location.origin + '/login');
+    document.body.appendChild(iframe);
 
-    try {
-      // Usando Fetch API com timeout através de AbortController
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-      await fetch(logoutUrl, {
-        method: 'GET',
-        credentials: 'include', // Equivalente a withCredentials: true
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-    } catch (error) {
-      // Captura erros de rede, timeout ou outros
-      console.log('Logout error:', error);
-    } finally {
-      // Redireciona independentemente do resultado
-      this.router.navigate(['/login']);
-    }
+    // Após o logout, redireciona para a página de login
+    this.router.navigate(['/login']);
   }
 }
